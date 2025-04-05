@@ -18,7 +18,14 @@
             </div>
             <div class="d-flex flex-column m-auto py-3">
                 <span class="lead">Tổng Thu Nhập</span>
-                <h1 class="display-6 fw-bold">@(ViewBag.TotalIncome ?? "0")</h1>
+                @if (ViewBag.TotalIncome != null)
+                {
+                    <h1 class="display-6 fw-bold">@ViewBag.TotalIncome</h1>
+                }
+                else
+                {
+                    <h1 class="display-6 fw-bold">Không có dữ liệu</h1>
+                }
             </div>
         </div>
     </div>
@@ -30,7 +37,14 @@
             </div>
             <div class="d-flex flex-column m-auto py-3">
                 <span class="lead">Tổng Chi Tiêu</span>
-                <h1 class="display-6 fw-bold">@(ViewBag.TotalExpend ?? "0")</h1>
+                @if (ViewBag.TotalExpend != null)
+                {
+                    <h1 class="display-6 fw-bold">@ViewBag.TotalExpend</h1>
+                }
+                else
+                {
+                    <h1 class="display-6 fw-bold">Không có dữ liệu</h1>
+                }
             </div>
         </div>
     </div>
@@ -42,7 +56,14 @@
             </div>
             <div class="d-flex flex-column m-auto py-3">
                 <span class="lead">Số Dư</span>
-                <h1 class="display-6 fw-bold">@(ViewBag.Balance ?? "0")</h1>
+                @if (ViewBag.Balance != null)
+                {
+                    <h1 class="display-6 fw-bold">@ViewBag.Balance</h1>
+                }
+                else
+                {
+                    <h1 class="display-6 fw-bold">Không có dữ liệu</h1>
+                }
             </div>
         </div>
     </div>
@@ -74,7 +95,7 @@
             }
             else
             {
-                <p>Chưa có dữ liệu chi tiêu.</p>
+                <p>Không có dữ liệu chi tiêu.</p>
             }
         </div>
     </div>
@@ -113,7 +134,7 @@
             }
             else
             {
-                <p>Chưa có dữ liệu thu nhập hoặc chi tiêu.</p>
+                <p>Không có dữ liệu thu nhập hoặc chi tiêu.</p>
             }
         </div>
     </div>
@@ -140,7 +161,7 @@
                 }
                 else
                 {
-                    <p>Chưa có giao dịch nào.</p>
+                    <p>Không có dữ liệu giao dịch.</p>
                 }
             </div>
         </div>
