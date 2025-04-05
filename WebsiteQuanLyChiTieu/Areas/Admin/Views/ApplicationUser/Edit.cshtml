@@ -1,0 +1,32 @@
+﻿@using WebsiteQuanLyChiTieu.Areas.Admin.Models
+@model ApplicationUser
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Edit User</h1>
+
+<form method="post">
+    <div class="form-group">
+        <label for="FullName">Full Name</label>
+        <input type="text" id="FullName" name="FullName" class="form-control" value="@Model.FullName" required />
+    </div>
+
+    <div class="form-group">
+        <label for="Email">Email</label>
+        <input type="email" id="Email" name="Email" class="form-control" value="@Model.Email" required />
+    </div>
+
+    <div class="form-group">
+        <label for="NewRole">Role</label>
+        <select id="NewRole" name="NewRole" class="form-control" required>
+            @foreach (var role in ViewBag.Roles)
+            {
+                @* <option value="@role" @(role == Model.Roles.FirstOrDefault() ? "selected" : "")>@role</option> *@
+            }
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Update</button>
+</form>

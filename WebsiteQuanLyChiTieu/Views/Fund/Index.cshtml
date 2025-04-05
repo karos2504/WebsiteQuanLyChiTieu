@@ -1,0 +1,37 @@
+﻿@* @model IEnumerable<WebsiteQuanLyChiTieu.Models.Fund> *@
+
+@* @{ *@
+@*     ViewData["Title"] = "Funds"; *@
+@* } *@
+
+@* <h1>Funds</h1> *@
+
+@* <p> *@
+@*     <a href="@Url.Action("Create")" class="btn btn-primary">Create New Fund</a> *@
+@* </p> *@
+
+@* <table class="table"> *@
+@*     <thead> *@
+@*         <tr> *@
+@*             <th>@Html.DisplayNameFor(model => model.FundName)</th> *@
+@*             <th>@Html.DisplayNameFor(model => model.Amount)</th> *@
+@*             <th>@Html.DisplayNameFor(model => model.Description)</th> *@
+@*             <th></th> *@
+@*         </tr> *@
+@*     </thead> *@
+@*     <tbody> *@
+@*         @foreach (var item in Model) *@
+@*         { *@
+@*             <tr> *@
+@*                 <td>@item.FundName</td> *@
+@*                 <td>@item.Amount</td> *@
+@*                 <td>@item.Description</td> *@
+@*                 <td> *@
+@*                     <a href="@Url.Action("Edit", new { id = item.FundID })" class="btn btn-warning">Edit</a> *@
+@*                     <a href="@Url.Action("Delete", new { id = item.FundID })" class="btn btn-danger">Delete</a> *@
+@*                 </td> *@
+@*             </tr> *@
+@*         } *@
+@*     </tbody> *@
+@* </table> *@
+    

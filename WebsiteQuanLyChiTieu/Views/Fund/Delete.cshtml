@@ -1,0 +1,21 @@
+﻿@model WebsiteQuanLyChiTieu.Models.Fund
+
+@{
+    ViewData["Title"] = "Delete Fund";
+}
+
+<h1>Delete Fund</h1>
+
+<h3>Are you sure you want to delete this fund?</h3>
+
+<div>
+    <h4>@Model.FundName</h4>
+    <p>@Model.Description</p>
+    <p>Amount: @Model.Amount</p>
+</div>
+
+<form method="post">
+    <button type="submit" class="btn btn-danger">Delete</button>
+</form>
+
+<a href="@Url.Action("Index")" class="btn btn-secondary">Back to List</a>

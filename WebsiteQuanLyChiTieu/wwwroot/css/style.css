@@ -1,0 +1,23 @@
+﻿.text-white {
+    color: white;
+}
+
+.transaction-details {
+    background-color: rgba(255, 255, 255, 0.1); /* Nền trong suốt nhẹ */
+    padding: 15px;
+    border-radius: 8px;
+}
+
+    .transaction-details p {
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+
+    .transaction-details strong {
+        font-weight: bold;
+    }
+
+
+    .table {
+        color: white;
+    }

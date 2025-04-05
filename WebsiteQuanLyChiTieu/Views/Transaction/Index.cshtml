@@ -1,0 +1,40 @@
+﻿@* @model IEnumerable<WebsiteQuanLyChiTieu.Models.Transaction> *@
+
+@* @{ *@
+@*     ViewData["Title"] = "Transactions List"; *@
+@* } *@
+
+@* <h1>Transactions List</h1> *@
+
+@* <a asp-action="Create" class="btn btn-primary">Create New Transaction</a> *@
+
+@* <table class="table"> *@
+@*     <thead> *@
+@*         <tr> *@
+@*             <th>#</th> *@
+@*             <th>Type</th> *@
+@*             <th>Amount</th> *@
+@*             <th>Fund</th> *@
+@*             <th>Created By</th> *@
+@*             <th>Status</th> *@
+@*             <th>Actions</th> *@
+@*         </tr> *@
+@*     </thead> *@
+@*     <tbody> *@
+@*         @foreach (var transaction in Model) *@
+@*         { *@
+@*             <tr> *@
+@*                 <td>@transaction.TransactionID</td> *@
+@*                 <td>@transaction.Type</td> *@
+@*                 <td>@transaction.Amount</td> *@
+@*                 <td>@transaction.Fund?.FundName</td> *@
+@*                 <td>@transaction.CreatedBy?.UserName</td> *@
+@*                 <td>@transaction.Status</td> *@
+@*                 <td> *@
+@*                     <a asp-action="Details" asp-route-id="@transaction.TransactionID" class="btn btn-info">Details</a> *@
+@*                     <a asp-action="Edit" asp-route-id="@transaction.TransactionID" class="btn btn-warning">Edit</a> *@
+@*                 </td> *@
+@*             </tr> *@
+@*         } *@
+@*     </tbody> *@
+@* </table> *@

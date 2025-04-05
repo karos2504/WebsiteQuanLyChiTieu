@@ -1,0 +1,15 @@
+﻿@using WebsiteQuanLyChiTieu.Areas.Admin.Models
+@model ApplicationUser
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Delete User</h1>
+
+<p>Are you sure you want to delete the user <strong>@Model.FullName</strong>?</p>
+
+<form method="post">
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a href="@Url.Action("Index", "ApplicationUser", new { area = "Admin" })" class="btn btn-secondary">Cancel</a>
+</form>

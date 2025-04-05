@@ -1,0 +1,46 @@
+﻿@model WebsiteQuanLyChiTieu.Models.Transaction
+
+<h2>Chỉnh Sửa Giao Dịch</h2>
+
+<form asp-action="Edit">
+    <input type="hidden" asp-for="TransactionID" />
+
+    @if (User.IsInRole("Admin"))
+    {
+        <div class="form-group">
+            <label>Trạng Thái</label>
+            <select asp-for="Status" class="form-control">
+                <option value="Pending">Pending</option>
+                <option value="Approved">Approved</option>
+                <option value="Rejected">Rejected</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Duyệt Bởi (Admin ID)</label>
+            <input asp-for="ApprovedById" class="form-control" />
+        </div>
+    }
+    else if (Model.Status == "Pending")
+    {
+        <div class="form-group">
+            <label>Trạng Thái</label>
+            <input type="text" value="Pending" class="form-control" disabled />
+            <input type="hidden" asp-for="Status" value="Rejected" />
+            <input type="hidden" asp-for="ApprovedById" value="@User.FindFirst("sub")?.Value" />
+        </div>
+
+        <div class="alert alert-warning">
+            Bạn có thể hủy giao dịch này. Nhấn <strong>Lưu</strong> để xác nhận hủy.
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            Giao dịch đã được xử lý và không thể chỉnh sửa.
+        </div>
+    }
+
+    <button type="submit" class="btn btn-success" @(Model.Status != "Pending" && !User.IsInRole("Admin") ? "disabled" : "")>Lưu</button>
+    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+</form>

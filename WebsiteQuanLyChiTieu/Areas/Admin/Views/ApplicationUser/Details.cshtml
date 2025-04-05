@@ -1,0 +1,28 @@
+﻿@using WebsiteQuanLyChiTieu.Areas.Admin.Models
+@model ApplicationUser
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>User Details</h1>
+
+<div class="form-group">
+    <label for="FullName">Full Name</label>
+    <input type="text" id="FullName" class="form-control" value="@Model.FullName" readonly />
+</div>
+
+<div class="form-group">
+    <label for="Email">Email</label>
+    <input type="email" id="Email" class="form-control" value="@Model.Email" readonly />
+</div>
+
+<div class="form-group">
+    <label for="Roles">Roles</label>
+    @* <input type="text" id="Roles" class="form-control" value="@string.Join(", ", Model.Roles)" readonly /> *@
+</div>
+
+<a href="@Url.Action("Edit", "ApplicationUser", new { id = Model.Id, area = "Admin" })" class="btn btn-warning">Edit</a>
+<a href="@Url.Action("Delete", "ApplicationUser", new { id = Model.Id, area = "Admin" })" class="btn btn-danger">Delete</a>
+
+<a href="@Url.Action("Index", "ApplicationUser", new { area = "Admin" })" class="btn btn-secondary">Back to List</a>
