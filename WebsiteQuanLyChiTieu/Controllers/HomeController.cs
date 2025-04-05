@@ -1,49 +1,85 @@
-﻿using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
-using WebsiteQuanLyChiTieu.Data;
+﻿using Microsoft.AspNetCore.Mvc;
 using WebsiteQuanLyChiTieu.Models;
+using WebsiteQuanLyChiTieu.Repositories;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
-namespace WebsiteQuanLyChiTieu.Controllers;
-
-public class HomeController : Controller
+namespace WebsiteQuanLyChiTieu.Controllers
 {
-    private readonly ILogger<HomeController> _logger;
-    private readonly ApplicationDbContext _context;
-
-    // Cập nhật constructor để inject cả ApplicationDbContext
-    public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
+    public class HomeController : Controller
     {
-        _logger = logger;
-        _context = context;
-    }
+        private readonly IRepository<Transaction> _transactionRepository;
+        private readonly IRepository<Category> _categoryRepository;
+        private readonly IRepository<Fund> _fundRepository;
 
-    public IActionResult Index()
-    {
-        // Tính tổng thu nhập (Income) từ bảng Transactions
-        var totalIncome = _context.Transactions
-                               .Where(t => t.Status == "Approved" && t.Type == "Income") // Lọc giao dịch đã approved và loại Income
-                               .Sum(t => t.Amount);
+        public HomeController(
+            IRepository<Transaction> transactionRepository,
+            IRepository<Category> categoryRepository,
+            IRepository<Fund> fundRepository)
+        {
+            _transactionRepository = transactionRepository;
+            _categoryRepository = categoryRepository;
+            _fundRepository = fundRepository;
+        }
 
-        ViewBag.totalIncome = totalIncome.ToString("N0"); // Gán vào ViewBag (đổi tên thành totalIncome)
+        public async Task<IActionResult> Index()
+        {
+            // 1. Tổng Thu Nhập, Tổng Chi Tiêu, Số Dư
+            var transactions = await _transactionRepository.GetAllAsync();
+            var totalIncome = transactions.Where(t => t.Type == "Income" && t.Status == "Approved").Sum(t => t.Amount);
+            var totalExpense = transactions.Where(t => t.Type == "Expense" && t.Status == "Approved").Sum(t => t.Amount);
+            var balance = totalIncome - totalExpense;
 
-        // Tính tổng chi tiêu (Expend) từ bảng Transactions
-        var totalExpend = _context.Transactions
-                               .Where(t => t.Status == "Approved" && t.Type == "Expend") // Lọc giao dịch đã approved và loại Expend
-                               .Sum(t => t.Amount);
+            ViewBag.TotalIncome = totalIncome.ToString("C0");
+            ViewBag.TotalExpend = totalExpense.ToString("C0");
+            ViewBag.Balance = balance.ToString("C0");
 
-        ViewBag.TotalExpend = totalExpend.ToString("N0"); // Gán vào ViewBag (sửa từ totalIncome thành totalExpend)
+            // 2. Dữ liệu cho biểu đồ bánh (Chi Tiêu Theo Danh Mục)
+            var categories = await _categoryRepository.GetAllAsync();
+            var expenseByCategory = transactions
+                .Where(t => t.Type == "Expense" && t.Status == "Approved")
+                .GroupBy(t => t.CategoryID)
+                .Select(g => new
+                {
+                    CategoryID = g.Key,
+                    Amount = g.Sum(t => t.Amount)
+                }).ToList();
 
-        return View();
-    }
+            var doughnutChartData = expenseByCategory.Select(ec => new DoughnutChartData
+            {
+                CategoryTitleWithIcon = categories.FirstOrDefault(c => c.CategoryID == ec.CategoryID)?.CategoryName ?? "Unknown",
+                Amount = ec.Amount,
+                FormattedAmount = ec.Amount.ToString("C0")
+            }).ToList();
+            ViewBag.DoughnutChartData = doughnutChartData;
 
-    public IActionResult Privacy()
-    {
-        return View();
-    }
+            // 3. Dữ liệu cho biểu đồ đường (Thu Nhập vs Chi Tiêu theo ngày)
+            var splineChartData = transactions
+                .Where(t => t.Status == "Approved")
+                .GroupBy(t => t.CreatedAt.Date)
+                .Select(g => new SplineChartData
+                {
+                    Day = g.Key.ToString("dd/MM/yyyy"),
+                    Income = g.Where(t => t.Type == "Income").Sum(t => t.Amount),
+                    Expense = g.Where(t => t.Type == "Expense").Sum(t => t.Amount)
+                }).OrderBy(x => DateTime.Parse(x.Day)).ToList();
+            ViewBag.SplineChartData = splineChartData;
 
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            // 4. Giao dịch gần đây (5 giao dịch mới nhất)
+            var recentTransactions = transactions
+                .OrderByDescending(t => t.CreatedAt)
+                .Take(5)
+                .Select(t => new RecentTransactionData
+                {
+                    CategoryTitleWithIcon = categories.FirstOrDefault(c => c.CategoryID == t.CategoryID)?.CategoryName ?? "Unknown",
+                    Date = t.CreatedAt,
+                    FormattedAmount = t.Type == "Income" ? $"+{t.Amount:C0}" : $"-{t.Amount:C0}"
+                }).ToList();
+            ViewBag.RecentTransactions = recentTransactions;
+
+            return View();
+        }
     }
 }
