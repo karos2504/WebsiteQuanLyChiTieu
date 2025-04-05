@@ -1,34 +1,33 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WebsiteQuanLyChiTieu.Data;
 using WebsiteQuanLyChiTieu.Models;
-using WebsiteQuanLyChiTieu.Repositories;
 
 namespace WebsiteQuanLyChiTieu.Controllers
 {
     public class CategoryController : Controller
     {
-        private readonly CategoryRepository _categoryRepository;
+        private readonly ApplicationDbContext _context;
 
-        public CategoryController(CategoryRepository categoryRepository)
+        public CategoryController(ApplicationDbContext context)
         {
-            _categoryRepository = categoryRepository;
+            _context = context;
         }
 
         // GET: Category
         public async Task<IActionResult> Index()
         {
-            var categories = await _categoryRepository.GetAllAsync();
-            return View(categories);
+            return View(await _context.Categories.ToListAsync());
         }
 
         // GET: Category/Details/5
-        public async Task<IActionResult> Details(int id)
+        public async Task<IActionResult> Details(int? id)
         {
-            var category = await _categoryRepository.GetByIdAsync(id);
-            if (category == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
+
+            var category = await _context.Categories
+                .FirstOrDefaultAsync(m => m.CategoryID == id);
+            if (category == null) return NotFound();
 
             return View(category);
         }
@@ -42,25 +41,24 @@ namespace WebsiteQuanLyChiTieu.Controllers
         // POST: Category/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CategoryName,Description")] Category category)
+        public async Task<IActionResult> Create([Bind("CategoryID,CategoryName,Description")] Category category)
         {
             if (ModelState.IsValid)
             {
-                await _categoryRepository.AddAsync(category);
+                _context.Add(category);
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View(category);
         }
 
         // GET: Category/Edit/5
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(int? id)
         {
-            var category = await _categoryRepository.GetByIdAsync(id);
-            if (category == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
+            var category = await _context.Categories.FindAsync(id);
+            if (category == null) return NotFound();
             return View(category);
         }
 
@@ -69,27 +67,19 @@ namespace WebsiteQuanLyChiTieu.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("CategoryID,CategoryName,Description")] Category category)
         {
-            if (id != category.CategoryID)
-            {
-                return NotFound();
-            }
+            if (id != category.CategoryID) return NotFound();
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    await _categoryRepository.UpdateAsync(category);
+                    _context.Update(category);
+                    await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CategoryExists(category.CategoryID))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!CategoryExists(category.CategoryID)) return NotFound();
+                    throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
@@ -97,13 +87,13 @@ namespace WebsiteQuanLyChiTieu.Controllers
         }
 
         // GET: Category/Delete/5
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int? id)
         {
-            var category = await _categoryRepository.GetByIdAsync(id);
-            if (category == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
+
+            var category = await _context.Categories
+                .FirstOrDefaultAsync(m => m.CategoryID == id);
+            if (category == null) return NotFound();
 
             return View(category);
         }
@@ -113,13 +103,18 @@ namespace WebsiteQuanLyChiTieu.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await _categoryRepository.DeleteAsync(id);
+            var category = await _context.Categories.FindAsync(id);
+            if (category != null)
+            {
+                _context.Categories.Remove(category);
+                await _context.SaveChangesAsync();
+            }
             return RedirectToAction(nameof(Index));
         }
 
         private bool CategoryExists(int id)
         {
-            return _categoryRepository.GetByIdAsync(id) != null;
+            return _context.Categories.Any(e => e.CategoryID == id);
         }
     }
 }

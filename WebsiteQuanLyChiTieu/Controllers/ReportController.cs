@@ -1,29 +1,43 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using WebsiteQuanLyChiTieu.Data;
 using WebsiteQuanLyChiTieu.Models;
-using WebsiteQuanLyChiTieu.Models.ViewModels;
-using WebsiteQuanLyChiTieu.Repositories;
 
-[Authorize]
-public class ReportController : Controller
+namespace WebsiteQuanLyChiTieu.Controllers
 {
-    private readonly IRepository<Transaction> _transactionRepository;
-
-    public ReportController(IRepository<Transaction> transactionRepository)
+    public class ReportController : Controller
     {
-        _transactionRepository = transactionRepository;
-    }
+        private readonly ApplicationDbContext _context;
 
-    public async Task<IActionResult> Index()
-    {
-        var transactions = await _transactionRepository.GetAllAsync();
-
-        var reportViewModel = new ReportViewModel
+        public ReportController(ApplicationDbContext context)
         {
-            Transactions = transactions.ToList(),
-        };
+            _context = context;
+        }
 
-        return View(reportViewModel);
+        // GET: Report
+        public async Task<IActionResult> Index()
+        {
+            var reports = await _context.Reports.ToListAsync();
+            return View(reports);
+        }
+
+        // GET: Report/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var report = await _context.Reports
+                .Include(r => r.Transactions)
+                .FirstOrDefaultAsync(m => m.ReportID == id);
+            if (report == null) return NotFound();
+
+            // Tính toán TotalAmount từ Transactions (nếu cần)
+            if (report.Transactions != null && report.Transactions.Any())
+            {
+                report.TotalAmount = report.Transactions.Sum(t => t.Amount);
+            }
+
+            return View(report);
+        }
     }
 }

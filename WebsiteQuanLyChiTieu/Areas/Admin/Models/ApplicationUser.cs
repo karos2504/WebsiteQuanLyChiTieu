@@ -9,10 +9,6 @@ namespace WebsiteQuanLyChiTieu.Areas.Admin.Models
         public string? Role { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        // Quan hệ với Transactions
         public ICollection<Transaction>? Transactions { get; set; }
-
-        // Quan hệ với Funds
-        public ICollection<Fund>? Funds { get; set; }
     }
 }

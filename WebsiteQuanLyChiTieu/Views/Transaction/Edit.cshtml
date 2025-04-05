@@ -1,46 +1,90 @@
 ﻿@model WebsiteQuanLyChiTieu.Models.Transaction
 
-<h2>Chỉnh Sửa Giao Dịch</h2>
+@{
+    ViewData["Title"] = "Sửa giao dịch";
+    var isAdmin = User.IsInRole("Admin");
+}
 
-<form asp-action="Edit">
-    <input type="hidden" asp-for="TransactionID" />
+<h1>Sửa giao dịch</h1>
 
-    @if (User.IsInRole("Admin"))
-    {
-        <div class="form-group">
-            <label>Trạng Thái</label>
-            <select asp-for="Status" class="form-control">
-                <option value="Pending">Pending</option>
-                <option value="Approved">Approved</option>
-                <option value="Rejected">Rejected</option>
-            </select>
-        </div>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        @if (isAdmin)
+        {
+            <!-- Form để Admin thay đổi Status -->
+            <form asp-action="Edit" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="TransactionID" />
+                <!-- Gửi các trường bắt buộc dưới dạng ẩn -->
+                <input type="hidden" asp-for="CreatedById" />
+                <input type="hidden" asp-for="Type" />
+                <input type="hidden" asp-for="Amount" />
+                <input type="hidden" asp-for="CategoryID" />
+                <input type="hidden" asp-for="FundID" />
 
-        <div class="form-group">
-            <label>Duyệt Bởi (Admin ID)</label>
-            <input asp-for="ApprovedById" class="form-control" />
-        </div>
+                <div class="form-group">
+                    <label asp-for="Status" class="control-label"></label>
+                    <select asp-for="Status" class="form-control">
+                        <option value="Pending">Chờ duyệt</option>
+                        <option value="Approved">Đã duyệt</option>
+                        <option value="Rejected">Đã hủy</option>
+                    </select>
+                    <span asp-validation-for="Status" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <input type="submit" value="Lưu" class="btn btn-primary" />
+                </div>
+            </form>
+
+            <!-- Form riêng để hủy duyệt -->
+            <form asp-action="Cancel" method="post" asp-route-id="@Model.TransactionID">
+                <input type="hidden" name="id" value="@Model.TransactionID" />
+                <input type="submit" value="Hủy duyệt" class="btn btn-danger" />
+            </form>
+        }
+        else
+        {
+            <!-- User chỉ thay đổi Description nếu Status là Pending -->
+            @if (Model.Status == "Pending")
+            {
+                <form asp-action="Edit" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="TransactionID" />
+                    <input type="hidden" asp-for="Status" value="Pending" />
+                    <!-- Gửi các trường bắt buộc dưới dạng ẩn -->
+                    <input type="hidden" asp-for="CreatedById" />
+                    <input type="hidden" asp-for="Type" />
+                    <input type="hidden" asp-for="Amount" />
+                    <input type="hidden" asp-for="CategoryID" />
+                    <input type="hidden" asp-for="FundID" />
+
+                    <div class="form-group">
+                        <label asp-for="Description" class="control-label"></label>
+                        <input asp-for="Description" class="form-control" />
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="submit" value="Lưu" class="btn btn-primary" />
+                    </div>
+                </form>
+            }
+            else
+            {
+                <p>Giao dịch đã được duyệt hoặc hủy, không thể chỉnh sửa.</p>
+            }
+        }
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Quay lại danh sách</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    else if (Model.Status == "Pending")
-    {
-        <div class="form-group">
-            <label>Trạng Thái</label>
-            <input type="text" value="Pending" class="form-control" disabled />
-            <input type="hidden" asp-for="Status" value="Rejected" />
-            <input type="hidden" asp-for="ApprovedById" value="@User.FindFirst("sub")?.Value" />
-        </div>
-
-        <div class="alert alert-warning">
-            Bạn có thể hủy giao dịch này. Nhấn <strong>Lưu</strong> để xác nhận hủy.
-        </div>
-    }
-    else
-    {
-        <div class="alert alert-info">
-            Giao dịch đã được xử lý và không thể chỉnh sửa.
-        </div>
-    }
-
-    <button type="submit" class="btn btn-success" @(Model.Status != "Pending" && !User.IsInRole("Admin") ? "disabled" : "")>Lưu</button>
-    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
-</form>
+}

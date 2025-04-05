@@ -13,7 +13,4 @@ public class CategoryRepository : IRepository<Category>
     public async Task AddAsync(Category entity) { _context.Categories.Add(entity); await _context.SaveChangesAsync(); }
     public async Task UpdateAsync(Category entity) { _context.Categories.Update(entity); await _context.SaveChangesAsync(); }
     public async Task DeleteAsync(int id) { var entity = await GetByIdAsync(id); if (entity != null) { _context.Categories.Remove(entity); await _context.SaveChangesAsync(); } }
-
-    public Task<Category?> GetByIdAsync(int key1, int key2) => throw new NotImplementedException();
-    public Task DeleteAsync(int key1, int key2) => throw new NotImplementedException();
 }

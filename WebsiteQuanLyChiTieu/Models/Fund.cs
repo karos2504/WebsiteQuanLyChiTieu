@@ -1,21 +1,17 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebsiteQuanLyChiTieu.Models
 {
     public class Fund
     {
-        public int FundID { get; set; }  // ID Quỹ
+        public int FundID { get; set; }
 
-        public string? FundName { get; set; }  // Tên Quỹ
+        public string? FundName { get; set; }
 
-        public decimal Amount { get; set; }  // Số tiền trong quỹ
+        public decimal Amount { get; set; }
 
-        public string? Description { get; set; }  // Mô tả về quỹ
+        public string? Description { get; set; }
 
-        // Mối quan hệ với Transaction
-        public ICollection<Transaction>? Transactions { get; set; }  // Các giao dịch liên quan đến quỹ
-
-        
+        public ICollection<Transaction>? Transactions { get; set; }
     }
 }

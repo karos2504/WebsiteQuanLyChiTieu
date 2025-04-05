@@ -7,44 +7,58 @@ namespace WebsiteQuanLyChiTieu.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options)
+        {
+        }
 
+        // Các DbSet
         public DbSet<Category> Categories { get; set; }
         public DbSet<Fund> Funds { get; set; }
-        public DbSet<Transaction> Transactions { get; set; }
         public DbSet<Report> Reports { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Transaction - CreatedBy (người tạo)
-            modelBuilder.Entity<Transaction>()
-                .HasOne(t => t.CreatedBy)
-                .WithMany(u => u.Transactions)
-                .HasForeignKey(t => t.CreatedById)
-                .OnDelete(DeleteBehavior.Restrict);
+            // Cấu hình độ chính xác và tỷ lệ cho các thuộc tính decimal
+            modelBuilder.Entity<Fund>()
+                .Property(f => f.Amount)
+                .HasPrecision(18, 2); // 18 chữ số, 2 chữ số thập phân
 
-            // Transaction - Fund (1-n)
-            modelBuilder.Entity<Transaction>()
-                .HasOne(t => t.Fund)
-                .WithMany(f => f.Transactions)
-                .HasForeignKey(t => t.FundID)
-                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Report>()
+                .Property(r => r.TotalAmount)
+                .HasPrecision(18, 2);
 
-            // Transaction - ApprovedBy (nếu có)
             modelBuilder.Entity<Transaction>()
-                .HasOne(t => t.ApprovedBy)
-                .WithMany()
-                .HasForeignKey(t => t.ApprovedById)
-                .OnDelete(DeleteBehavior.Restrict);
+                .Property(t => t.Amount)
+                .HasPrecision(18, 2);
 
-            // Transaction - Category
+            // Cấu hình mối quan hệ khóa ngoại cho Transaction
             modelBuilder.Entity<Transaction>()
                 .HasOne(t => t.Category)
                 .WithMany(c => c.Transactions)
                 .HasForeignKey(t => t.CategoryID)
-                .OnDelete(DeleteBehavior.SetNull); // hoặc DeleteBehavior.Cascade nếu cần
+                .OnDelete(DeleteBehavior.Cascade); // Khi xóa Category, xóa luôn Transaction liên quan
+
+            modelBuilder.Entity<Transaction>()
+                .HasOne(t => t.Fund)
+                .WithMany(f => f.Transactions)
+                .HasForeignKey(t => t.FundID)
+                .OnDelete(DeleteBehavior.Cascade); // Khi xóa Fund, xóa luôn Transaction liên quan
+
+            modelBuilder.Entity<Transaction>()
+                .HasOne(t => t.CreatedBy)
+                .WithMany(u => u.Transactions)
+                .HasForeignKey(t => t.CreatedById)
+                .OnDelete(DeleteBehavior.NoAction); // Không xóa User nếu có Transaction liên quan
+
+            modelBuilder.Entity<Transaction>()
+                .HasOne(t => t.ApprovedBy)
+                .WithMany()
+                .HasForeignKey(t => t.ApprovedById)
+                .OnDelete(DeleteBehavior.NoAction); // Không xóa User nếu có Transaction liên quan
         }
     }
 }

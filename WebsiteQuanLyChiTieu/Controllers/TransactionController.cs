@@ -1,166 +1,235 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.Threading.Tasks;
-using WebsiteQuanLyChiTieu.Data;
+using WebsiteQuanLyChiTieu.Areas.Admin.Models;
 using WebsiteQuanLyChiTieu.Models;
+using WebsiteQuanLyChiTieu.Repositories;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace WebsiteQuanLyChiTieu.Controllers
 {
-    [Authorize]
     public class TransactionController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IRepository<Transaction> _transactionRepository;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IRepository<Category> _categoryRepository;
+        private readonly IRepository<Fund> _fundRepository;
 
-        public TransactionController(ApplicationDbContext context)
+        public TransactionController(
+            IRepository<Transaction> transactionRepository,
+            UserManager<ApplicationUser> userManager,
+            IRepository<Category> categoryRepository,
+            IRepository<Fund> fundRepository)
         {
-            _context = context;
+            _transactionRepository = transactionRepository;
+            _userManager = userManager;
+            _categoryRepository = categoryRepository;
+            _fundRepository = fundRepository;
         }
 
         // GET: Transaction
         public async Task<IActionResult> Index()
         {
-            var transactions = _context.Transactions
-                .Include(t => t.Category)      // Bao gồm Category
-                .Include(t => t.Fund)          // Bao gồm Fund
-                .Include(t => t.CreatedBy)     // Bao gồm CreatedBy
-                .Include(t => t.ApprovedBy)    // Bao gồm ApprovedBy
-                .ToListAsync();
-
-            return View(await transactions);
+            var transactions = await _transactionRepository.GetAllAsync();
+            return View(transactions);
         }
 
         // GET: Transaction/Details/5
-        public async Task<IActionResult> Details(int id)
+        public async Task<IActionResult> Details(int? id)
         {
-            var transaction = await _context.Transactions
-                .Include(t => t.Category)      // Bao gồm Category
-                .Include(t => t.Fund)          // Bao gồm Fund
-                .Include(t => t.CreatedBy)     // Bao gồm CreatedBy
-                .Include(t => t.ApprovedBy)    // Bao gồm ApprovedBy
-                .FirstOrDefaultAsync(m => m.TransactionID == id);
+            if (id == null) return NotFound();
 
-            if (transaction == null)
-            {
-                return NotFound();
-            }
+            var transaction = await _transactionRepository.GetByIdAsync(id.Value);
+            if (transaction == null) return NotFound();
 
             return View(transaction);
         }
 
         // GET: Transaction/Create
-        public IActionResult Create()
+        [Authorize]
+        public async Task<IActionResult> Create()
         {
-            ViewData["CategoryID"] = new SelectList(_context.Categories, "CategoryID", "CategoryName");
-            ViewData["FundID"] = new SelectList(_context.Funds, "FundID", "FundName");
-            return View();
+            var categories = await _categoryRepository.GetAllAsync();
+            var funds = await _fundRepository.GetAllAsync();
+
+            if (!categories.Any() || !funds.Any())
+            {
+                ModelState.AddModelError("", "Không có danh mục hoặc quỹ nào trong hệ thống. Vui lòng thêm trước khi tạo giao dịch.");
+            }
+
+            ViewData["CategoryID"] = new SelectList(categories, "CategoryID", "CategoryName");
+            ViewData["FundID"] = new SelectList(funds, "FundID", "FundName");
+            return View(new Transaction
+            {
+                CreatedById = _userManager.GetUserId(User),
+                Status = "Pending",
+                CreatedAt = DateTime.UtcNow
+            });
         }
 
         // POST: Transaction/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("TransactionID,Amount,Description,CategoryID,FundID,Type,Status,CreatedById")] Transaction transaction)
+        [Authorize]
+        public async Task<IActionResult> Create([Bind("CategoryID,FundID,Type,Amount,Description,CreatedById,Status,CreatedAt")] Transaction transaction)
         {
+            transaction.CreatedById = _userManager.GetUserId(User);
+            transaction.Status = "Pending";
+            transaction.CreatedAt = DateTime.UtcNow;
+
             if (ModelState.IsValid)
             {
-                // Set the CreatedAt to current time and CreatedById to the logged-in user
-                transaction.CreatedAt = DateTime.UtcNow;
-                transaction.CreatedById = User.Identity.Name;
+                var categoryExists = await _categoryRepository.GetByIdAsync(transaction.CategoryID) != null;
+                var fundExists = await _fundRepository.GetByIdAsync(transaction.FundID) != null;
+                var userExists = await _userManager.FindByIdAsync(transaction.CreatedById) != null;
 
-                _context.Add(transaction);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (!categoryExists || !fundExists || !userExists)
+                {
+                    ModelState.AddModelError("", "Danh mục, quỹ hoặc người dùng không tồn tại.");
+                }
+                else
+                {
+                    await _transactionRepository.AddAsync(transaction);
+                    return RedirectToAction(nameof(Index));
+                }
             }
 
-            ViewData["CategoryID"] = new SelectList(_context.Categories, "CategoryID", "CategoryName", transaction.CategoryID);
-            ViewData["FundID"] = new SelectList(_context.Funds, "FundID", "FundName", transaction.FundID);
+            ViewData["CategoryID"] = new SelectList(await _categoryRepository.GetAllAsync(), "CategoryID", "CategoryName", transaction.CategoryID);
+            ViewData["FundID"] = new SelectList(await _fundRepository.GetAllAsync(), "FundID", "FundName", transaction.FundID);
             return View(transaction);
         }
 
         // GET: Transaction/Edit/5
-        public async Task<IActionResult> Edit(int id)
+        [Authorize]
+        public async Task<IActionResult> Edit(int? id)
         {
-            var transaction = await _context.Transactions.FindAsync(id);
-            if (transaction == null)
+            if (id == null) return NotFound();
+
+            var transaction = await _transactionRepository.GetByIdAsync(id.Value);
+            if (transaction == null) return NotFound();
+
+            var currentUserId = _userManager.GetUserId(User);
+            var isAdmin = User.IsInRole("Admin");
+
+            if (!isAdmin && transaction.CreatedById != currentUserId)
             {
-                return NotFound();
+                return Forbid();
             }
 
-            ViewData["CategoryID"] = new SelectList(_context.Categories, "CategoryID", "CategoryName", transaction.CategoryID);
-            ViewData["FundID"] = new SelectList(_context.Funds, "FundID", "FundName", transaction.FundID);
+            if (!isAdmin && transaction.Status != "Pending")
+            {
+                return Forbid();
+            }
+
             return View(transaction);
         }
 
         // POST: Transaction/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("TransactionID,Amount,Description,CategoryID,FundID,Type,Status,CreatedById,ApprovedById")] Transaction transaction)
+        [Authorize]
+        public async Task<IActionResult> Edit(int id, [Bind("TransactionID,Status,Description")] Transaction updatedTransaction)
         {
-            if (id != transaction.TransactionID)
+            if (id != updatedTransaction.TransactionID) return NotFound();
+
+            var currentUserId = _userManager.GetUserId(User);
+            var isAdmin = User.IsInRole("Admin");
+            var existingTransaction = await _transactionRepository.GetByIdAsync(id);
+
+            if (existingTransaction == null) return NotFound();
+
+            if (!isAdmin && existingTransaction.CreatedById != currentUserId)
             {
-                return NotFound();
+                return Forbid();
             }
 
-            if (ModelState.IsValid)
+            try
             {
-                try
+                // Xóa validation cho các trường không gửi từ form
+                ModelState.Remove("CreatedById");
+                ModelState.Remove("Type");
+                ModelState.Remove("Amount");
+                ModelState.Remove("CategoryID");
+                ModelState.Remove("FundID");
+
+                if (ModelState.IsValid)
                 {
-                    _context.Update(transaction);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!TransactionExists(transaction.TransactionID))
+                    if (isAdmin)
                     {
-                        return NotFound();
+                        // Admin thay đổi Status
+                        var previousStatus = existingTransaction.Status;
+                        existingTransaction.Status = updatedTransaction.Status;
+
+                        if (existingTransaction.Status == "Approved" && previousStatus != "Approved")
+                        {
+                            existingTransaction.ApprovedById = currentUserId;
+                            // Cập nhật Fund khi phê duyệt
+                            var fund = await _fundRepository.GetByIdAsync(existingTransaction.FundID);
+                            if (fund != null)
+                            {
+                                if (existingTransaction.Type == "Income")
+                                {
+                                    fund.Amount += existingTransaction.Amount;
+                                }
+                                else if (existingTransaction.Type == "Expense")
+                                {
+                                    fund.Amount -= existingTransaction.Amount;
+                                }
+                                await _fundRepository.UpdateAsync(fund);
+                            }
+                        }
+                        else if (existingTransaction.Status == "Rejected")
+                        {
+                            existingTransaction.ApprovedById = null;
+                        }
                     }
                     else
                     {
-                        throw;
+                        // User chỉ thay đổi Description nếu Status là Pending
+                        if (existingTransaction.Status == "Pending")
+                        {
+                            existingTransaction.Description = updatedTransaction.Description;
+                        }
+                        else
+                        {
+                            return Forbid();
+                        }
                     }
+
+                    await _transactionRepository.UpdateAsync(existingTransaction);
+                    return RedirectToAction(nameof(Index));
                 }
-                return RedirectToAction(nameof(Index));
+                else
+                {
+                    var errors = ModelState.SelectMany(x => x.Value.Errors).Select(x => x.ErrorMessage);
+                    System.Diagnostics.Debug.WriteLine("ModelState Errors: " + string.Join(", ", errors));
+                }
             }
-
-            ViewData["CategoryID"] = new SelectList(_context.Categories, "CategoryID", "CategoryName", transaction.CategoryID);
-            ViewData["FundID"] = new SelectList(_context.Funds, "FundID", "FundName", transaction.FundID);
-            return View(transaction);
-        }
-
-        // GET: Transaction/Delete/5
-        public async Task<IActionResult> Delete(int id)
-        {
-            var transaction = await _context.Transactions
-                .Include(t => t.Category)
-                .Include(t => t.Fund)
-                .Include(t => t.CreatedBy)
-                .Include(t => t.ApprovedBy)
-                .FirstOrDefaultAsync(m => m.TransactionID == id);
-
-            if (transaction == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                System.Diagnostics.Debug.WriteLine($"Error updating transaction: {ex.Message}");
+                ModelState.AddModelError("", $"Có lỗi xảy ra khi lưu: {ex.Message}");
             }
 
-            return View(transaction);
+            return View(existingTransaction);
         }
 
-        // POST: Transaction/Delete/5
-        [HttpPost, ActionName("Delete")]
+        // POST: Transaction/Cancel/5
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Cancel(int id)
         {
-            var transaction = await _context.Transactions.FindAsync(id);
-            _context.Transactions.Remove(transaction);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+            var transaction = await _transactionRepository.GetByIdAsync(id);
+            if (transaction == null) return NotFound();
 
-        private bool TransactionExists(int id)
-        {
-            return _context.Transactions.Any(e => e.TransactionID == id);
+            // Khi hủy, đặt Status thành Rejected
+            transaction.Status = "Rejected";
+            transaction.ApprovedById = null;
+            await _transactionRepository.UpdateAsync(transaction);
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }

@@ -1,23 +1,40 @@
 ﻿@model WebsiteQuanLyChiTieu.Models.Category
 
 @{
-    ViewData["Title"] = "Edit Category";
+    ViewData["Title"] = "Sửa danh mục";
 }
 
-<h1>Edit Category</h1>
+<h1>Sửa danh mục</h1>
 
-<form method="post">
-    <div class="form-group">
-        <label asp-for="CategoryName" class="control-label"></label>
-        <input asp-for="CategoryName" class="form-control" />
-        <span asp-validation-for="CategoryName" class="text-danger"></span>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="CategoryID" />
+            <div class="form-group">
+                <label asp-for="CategoryName" class="control-label"></label>
+                <input asp-for="CategoryName" class="form-control" />
+                <span asp-validation-for="CategoryName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Lưu" class="btn btn-primary" />
+            </div>
+        </form>
     </div>
-    <div class="form-group">
-        <label asp-for="Description" class="control-label"></label>
-        <textarea asp-for="Description" class="form-control"></textarea>
-        <span asp-validation-for="Description" class="text-danger"></span>
-    </div>
-    <button type="submit" class="btn btn-primary">Save Changes</button>
-</form>
+</div>
 
-<a href="@Url.Action("Index")" class="btn btn-secondary">Back to List</a>
+<div>
+    <a asp-action="Index">Quay lại danh sách</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

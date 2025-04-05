@@ -8,7 +8,6 @@
 
         public string? Description { get; set; }
 
-        // Một Category có thể có nhiều Transaction
         public ICollection<Transaction>? Transactions { get; set; }
     }
 }

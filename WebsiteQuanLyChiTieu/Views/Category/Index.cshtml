@@ -1,13 +1,13 @@
 ﻿@model IEnumerable<WebsiteQuanLyChiTieu.Models.Category>
 
 @{
-    ViewData["Title"] = "Categories";
+    ViewData["Title"] = "Danh sách danh mục";
 }
 
-<h1>Categories</h1>
+<h1>Danh sách danh mục</h1>
 
 <p>
-    <a href="@Url.Action("Create")" class="btn btn-primary">Create New Category</a>
+    <a asp-action="Create">Tạo danh mục mới</a>
 </p>
 
 <table class="table">
@@ -22,11 +22,12 @@
         @foreach (var item in Model)
         {
             <tr>
-                <td>@item.CategoryName</td>
-                <td>@item.Description</td>
+                <td>@Html.DisplayFor(modelItem => item.CategoryName)</td>
+                <td>@Html.DisplayFor(modelItem => item.Description)</td>
                 <td>
-                    <a href="@Url.Action("Edit", new { id = item.CategoryID })" class="btn btn-warning">Edit</a>
-                    <a href="@Url.Action("Delete", new { id = item.CategoryID })" class="btn btn-danger">Delete</a>
+                    <a asp-action="Details" asp-route-id="@item.CategoryID">Chi tiết</a> |
+                    <a asp-action="Edit" asp-route-id="@item.CategoryID">Sửa</a> |
+                    <a asp-action="Delete" asp-route-id="@item.CategoryID">Xóa</a>
                 </td>
             </tr>
         }

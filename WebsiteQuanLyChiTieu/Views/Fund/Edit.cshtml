@@ -1,31 +1,45 @@
-﻿@* @model WebsiteQuanLyChiTieu.Models.Fund *@
+﻿@model WebsiteQuanLyChiTieu.Models.Fund
 
-@* @{ *@
-@*     ViewData["Title"] = "Edit Fund"; *@
-@* } *@
+@{
+    ViewData["Title"] = "Sửa quỹ";
+}
 
-@* <h1>Edit Fund</h1> *@
+<h1>Sửa quỹ</h1>
 
-@* <form method="post"> *@
-@*     <div class="form-group"> *@
-@*         <label asp-for="FundName" class="control-label"></label> *@
-@*         <input asp-for="FundName" class="form-control" /> *@
-@*         <span asp-validation-for="FundName" class="text-danger"></span> *@
-@*     </div> *@
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="FundID" />
+            <div class="form-group">
+                <label asp-for="FundName" class="control-label"></label>
+                <input asp-for="FundName" class="form-control" />
+                <span asp-validation-for="FundName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Amount" class="control-label"></label>
+                <input asp-for="Amount" class="form-control" />
+                <span asp-validation-for="Amount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Lưu" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
 
-@*     <div class="form-group"> *@
-@*         <label asp-for="Amount" class="control-label"></label> *@
-@*         <input asp-for="Amount" class="form-control" type="number" step="0.01" /> *@
-@*         <span asp-validation-for="Amount" class="text-danger"></span> *@
-@*     </div> *@
+<div>
+    <a asp-action="Index">Quay lại danh sách</a>
+</div>
 
-@*     <div class="form-group"> *@
-@*         <label asp-for="Description" class="control-label"></label> *@
-@*         <textarea asp-for="Description" class="form-control"></textarea> *@
-@*         <span asp-validation-for="Description" class="text-danger"></span> *@
-@*     </div> *@
-
-@*     <button type="submit" class="btn btn-primary">Save Changes</button> *@
-@* </form> *@
-
-@* <a href="@Url.Action("Index")" class="btn btn-secondary">Back to List</a> *@
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
