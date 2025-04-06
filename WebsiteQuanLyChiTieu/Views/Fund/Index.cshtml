@@ -1,40 +1,47 @@
 ﻿@model IEnumerable<WebsiteQuanLyChiTieu.Models.Fund>
-
 @{
-    ViewData["Title"] = "Danh sách quỹ";
+    ViewData["Title"] = "Danh Sách Quỹ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Danh sách quỹ</h1>
+<h2>Danh Sách Quỹ</h2>
+
 @if (User.IsInRole("Admin"))
 {
     <p>
-        <a asp-action="Create" class="btn btn-primary">Tạo quỹ mới</a>
+        <a asp-action="Create" class="btn btn-primary">Tạo Quỹ Mới</a>
+        <a asp-action="AssignFundView" class="btn btn-primary">Cấp Quỹ Cho User</a>
     </p>
 }
+
 <table class="table table-custom">
     <thead>
         <tr>
-            <th>@Html.DisplayNameFor(model => model.FundName)</th>
-            <th>@Html.DisplayNameFor(model => model.Amount)</th>
-            <th>@Html.DisplayNameFor(model => model.Description)</th>
-            <th></th>
+            <th>Tên Quỹ</th>
+            <th>Số Tiền</th>
+            <th>Mô Tả</th>
+            <th>User Được Cấp</th>
+            <th>Thao Tác</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var fund in Model)
         {
             <tr>
-                <td>@Html.DisplayFor(modelItem => item.FundName)</td>
-                <td>@Html.DisplayFor(modelItem => item.Amount)</td>
-                <td>@Html.DisplayFor(modelItem => item.Description)</td>
-                @if (User.IsInRole("Admin"))
-                {
-                    <td>
-                        <a asp-action="Details" asp-route-id="@item.FundID" class="btn btn-primary btn-sm">Chi tiết</a>
-                        <a asp-action="Edit" asp-route-id="@item.FundID" class="btn btn-secondary btn-sm">Sửa</a>
-                        <a asp-action="Delete" asp-route-id="@item.FundID" class="btn btn-danger btn-sm">Xóa</a>
-                    </td>
-                }
+                <td>@fund.FundName</td>
+                <td>@fund.Amount.ToString("C0")</td>
+                <td>@fund.Description</td>
+                <td>@(fund.User != null ? fund.User.FullName : "Chưa cấp")</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@fund.FundID">Chi tiết</a>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <span> | </span>
+                        <a asp-action="Edit" asp-route-id="@fund.FundID">Sửa</a>
+                        <span> | </span>
+                        <a asp-action="Delete" asp-route-id="@fund.FundID">Xóa</a>
+                    }
+                </td>
             </tr>
         }
     </tbody>

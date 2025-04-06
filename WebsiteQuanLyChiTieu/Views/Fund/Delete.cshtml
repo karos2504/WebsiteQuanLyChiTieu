@@ -1,39 +1,27 @@
 ﻿@model WebsiteQuanLyChiTieu.Models.Fund
-
 @{
-    ViewData["Title"] = "Xóa quỹ";
+    ViewData["Title"] = "Xóa Quỹ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Xóa quỹ</h1>
+<h2>Xóa Quỹ</h2>
 
 <h3>Bạn có chắc chắn muốn xóa quỹ này?</h3>
 <div>
-    <h4>@Html.DisplayFor(model => model.FundName)</h4>
+    <h4>@Model.FundName</h4>
     <hr />
     <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.FundName)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.FundName)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Amount)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Amount)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
+        <dt class="col-sm-2">Tên Quỹ</dt>
+        <dd class="col-sm-10">@Model.FundName</dd>
+        <dt class="col-sm-2">Số Tiền</dt>
+        <dd class="col-sm-10">@Model.Amount.ToString("C0")</dd>
+        <dt class="col-sm-2">Mô Tả</dt>
+        <dd class="col-sm-10">@Model.Description</dd>
     </dl>
 
-    <form asp-action="Delete">
+    <form asp-action="Delete" method="post">
         <input type="hidden" asp-for="FundID" />
-        <input type="submit" value="Xóa" class="btn btn-danger" /> |
-        <a asp-action="Index" class="btn btn-secondary btn-sm">Quay lại danh sách</a>
+        <button type="submit" class="btn btn-danger">Xóa</button>
+        <a asp-action="Index" class="btn btn-secondary">Hủy</a>
     </form>
 </div>

@@ -1,0 +1,41 @@
+﻿@model dynamic
+@{
+    ViewData["Title"] = "Cấp Quỹ Cho User";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Cấp Quỹ Cho User</h2>
+
+@if (ViewBag.ErrorMessage != null)
+{
+    <div class="alert alert-danger">
+        @ViewBag.ErrorMessage
+    </div>
+}
+
+<form asp-action="AssignFund" method="post">
+    <div class="form-group">
+        <label for="fundId">Chọn Quỹ</label>
+        <select name="fundId" id="fundId" class="form-control" required>
+            <option value="">-- Chọn quỹ --</option>
+            @foreach (var fund in ViewBag.Funds)
+            {
+                <option value="@fund.FundID">@fund.FundName (Số tiền: @fund.Amount.ToString("C0"))</option>
+            }
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="userId">Chọn Người Dùng</label>
+        <select name="userId" id="userId" class="form-control" required>
+            <option value="">-- Chọn người dùng --</option>
+            @foreach (var user in ViewBag.Users)
+            {
+                <option value="@user.Id">@user.FullName (@user.UserName)</option>
+            }
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Cấp Quỹ</button>
+    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+</form>

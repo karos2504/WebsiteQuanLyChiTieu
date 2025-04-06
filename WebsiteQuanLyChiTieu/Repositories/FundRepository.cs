@@ -12,9 +12,15 @@ public class FundRepository : IRepository<Fund>
         _context = context;
     }
 
-    public async Task<IEnumerable<Fund>> GetAllAsync() => await _context.Funds.ToListAsync();
+    public async Task<IEnumerable<Fund>> GetAllAsync()
+        => await _context.Funds
+            .Include(f => f.User) // Lấy thông tin User liên quan
+            .ToListAsync();
 
-    public async Task<Fund?> GetByIdAsync(int id) => await _context.Funds.FindAsync(id);
+    public async Task<Fund?> GetByIdAsync(int id)
+        => await _context.Funds
+            .Include(f => f.User) // Lấy thông tin User liên quan
+            .FirstOrDefaultAsync(f => f.FundID == id);
 
     public async Task AddAsync(Fund entity)
     {

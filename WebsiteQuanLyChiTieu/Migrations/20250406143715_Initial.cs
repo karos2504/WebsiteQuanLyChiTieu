@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace WebsiteQuanLyChiTieu.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -65,21 +65,6 @@ namespace WebsiteQuanLyChiTieu.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Categories", x => x.CategoryID);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Funds",
-                columns: table => new
-                {
-                    FundID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    FundName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Funds", x => x.FundID);
                 });
 
             migrationBuilder.CreateTable(
@@ -206,6 +191,27 @@ namespace WebsiteQuanLyChiTieu.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Funds",
+                columns: table => new
+                {
+                    FundID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FundName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UserID = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Funds", x => x.FundID);
+                    table.ForeignKey(
+                        name: "FK_Funds_AspNetUsers_UserID",
+                        column: x => x.UserID,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Transactions",
                 columns: table => new
                 {
@@ -294,6 +300,11 @@ namespace WebsiteQuanLyChiTieu.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Funds_UserID",
+                table: "Funds",
+                column: "UserID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Transactions_ApprovedById",
                 table: "Transactions",
                 column: "ApprovedById");
@@ -344,9 +355,6 @@ namespace WebsiteQuanLyChiTieu.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
                 name: "Categories");
 
             migrationBuilder.DropTable(
@@ -354,6 +362,9 @@ namespace WebsiteQuanLyChiTieu.Migrations
 
             migrationBuilder.DropTable(
                 name: "Reports");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
         }
     }
 }

@@ -1,45 +1,34 @@
 ﻿@model WebsiteQuanLyChiTieu.Models.Fund
-
 @{
-    ViewData["Title"] = "Sửa quỹ";
+    ViewData["Title"] = "Chỉnh Sửa Quỹ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Sửa quỹ</h1>
+<h2>Chỉnh Sửa Quỹ</h2>
 
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="FundID" />
-            <div class="form-group">
-                <label asp-for="FundName" class="control-label"></label>
-                <input asp-for="FundName" class="form-control" />
-                <span asp-validation-for="FundName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Amount" class="control-label"></label>
-                <input asp-for="Amount" class="form-control" />
-                <span asp-validation-for="Amount" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Lưu" class="btn btn-primary" />
-            </div>
-        </form>
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="FundID" />
+    <div class="form-group">
+        <label asp-for="FundName" class="control-label"></label>
+        <input asp-for="FundName" class="form-control" />
+        <span asp-validation-for="FundName" class="text-danger"></span>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index" class="btn btn-secondary btn-sm">Quay lại danh sách</a>
-</div>
+    <div class="form-group">
+        <label asp-for="Amount" class="control-label"></label>
+        <input asp-for="Amount" class="form-control" />
+        <span asp-validation-for="Amount" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Description" class="control-label"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Lưu</button>
+        <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+    </div>
+</form>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <partial name="_ValidationScriptsPartial" />
 }

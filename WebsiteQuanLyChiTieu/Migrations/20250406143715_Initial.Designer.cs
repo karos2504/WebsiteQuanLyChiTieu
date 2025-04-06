@@ -12,8 +12,8 @@ using WebsiteQuanLyChiTieu.Data;
 namespace WebsiteQuanLyChiTieu.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250406100613_init")]
-    partial class init
+    [Migration("20250406143715_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -269,7 +269,12 @@ namespace WebsiteQuanLyChiTieu.Migrations
                     b.Property<string>("FundName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("UserID")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("FundID");
+
+                    b.HasIndex("UserID");
 
                     b.ToTable("Funds");
                 });
@@ -410,6 +415,15 @@ namespace WebsiteQuanLyChiTieu.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("WebsiteQuanLyChiTieu.Models.Fund", b =>
+                {
+                    b.HasOne("WebsiteQuanLyChiTieu.Areas.Admin.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserID");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("WebsiteQuanLyChiTieu.Models.Transaction", b =>

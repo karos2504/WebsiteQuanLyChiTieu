@@ -3,13 +3,37 @@
 *@
 
 @using WebsiteQuanLyChiTieu.Models
+@using Microsoft.AspNetCore.Identity
+@using WebsiteQuanLyChiTieu.Areas.Admin.Models
+@inject UserManager<ApplicationUser> UserManager
 
 @{
     ViewData["Title"] = "Home Page";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-@*Widget Tóm tắt*@
+<!-- Nếu là Admin, hiển thị dropdown chọn User -->
+@if (User.IsInRole("Admin"))
+{
+    <div class="row mb-v mb-4">
+        <div class="col-md-12">
+            <form asp-action="Index" method="get" class="form-inline">
+                <label for="selectedUserId" class="mr-2">Xem dữ liệu của: </label>
+                <select name="selectedUserId" id="selectedUserId" class="form-control mr-2" onchange="this.form.submit()">
+                    <option value="">Chọn người dùng</option>
+                    @foreach (var user in ViewBag.AllUsers)
+                    {
+                        <option value="@user.Id" selected="@(ViewBag.SelectedUserId == user.Id ? "selected" : null)">
+                            @user.FullName (@user.UserName)
+                        </option>
+                    }
+                </select>
+            </form>
+        </div>
+    </div>
+}
+
+@* Widget Tóm tắt *@
 <div class="row mb-4">
     <div class="col-md-4">
         <div class="d-flex flex-row widget summary income">
@@ -69,21 +93,21 @@
     </div>
 </div>
 
-@*Biểu đồ Bánh và Biểu đồ Đường*@
+@* Biểu đồ Bánh và Biểu đồ Đường *@
 <div class="row mb-4">
     <div class="col-md-4">
         <div class="widget chart">
             <div class="p-4">
                 <h5 class="fw-bold">Chi Tiêu Theo Danh Mục</h5>
             </div>
-            @if (ViewBag.DoughnutChartData != null && ((List<DoughnutChartData>)ViewBag.DoughnutChartData).Count > 0)
+            @if (ViewBag.DoughnutChartData != null && ((List<DoughnutChartData>)ViewBag.DoughnutChartData).Any())
             {
                 <ejs-accumulationchart id="doughnutchart" enableSmartLabels background="#1a222b">
                     <e-accumulation-series-collection>
                         <e-accumulation-series dataSource="@ViewBag.DoughnutChartData"
                                                xName="CategoryTitleWithIcon" yName="Amount"
                                                innerRadius="60%" legendShape="Circle"
-                                               palettes=@(new string[]{"#0e8d76","#a4b219","#cb9b00","#8a442c","#0454b5","#7d0a0a","#822690","#4c2090","#313e93","#0096ac"})>
+                                               palettes=@(new string[] { "#0e8d76", "#a4b219", "#cb9b00", "#8a442c", "#0454b5", "#7d0a0a", "#822690", "#4c2090", "#313e93", "#0096ac" })>
                             <e-accumulationseries-datalabel name="FormattedAmount" visible></e-accumulationseries-datalabel>
                         </e-accumulation-series>
                     </e-accumulation-series-collection>
@@ -104,10 +128,10 @@
             <div class="p-4">
                 <h5 class="fw-bold">Thu Nhập So Với Chi Tiêu</h5>
             </div>
-            @if (ViewBag.SplineChartData != null && ((List<SplineChartData>)ViewBag.SplineChartData).Count > 0)
+            @if (ViewBag.SplineChartData != null && ((List<SplineChartData>)ViewBag.SplineChartData).Any())
             {
                 <ejs-chart id="spline-chart" background="#1a222b"
-                           palettes=@(new string[]{"#54ffa9","#ffe91a"})>
+                           palettes=@(new string[] { "#54ffa9", "#ffe91a" })>
                     <e-chart-primaryxaxis valueType="Category">
                         <e-majorgridlines width="0"></e-majorgridlines>
                         <e-majorticklines width="0"></e-majorticklines>
@@ -140,7 +164,7 @@
     </div>
 </div>
 
-@*Giao dịch Gần Đây và Thêm Nữa*@
+@* Giao dịch Gần Đây và Thêm Nữa *@
 <div class="row">
     <div class="col-md-6">
         <div class="widget">
@@ -148,7 +172,7 @@
                 <h5 class="fw-bold">Giao Dịch Gần Đây</h5>
             </div>
             <div class="px-4 pb-4">
-                @if (ViewBag.RecentTransactions != null && ((List<RecentTransactionData>)ViewBag.RecentTransactions).Count > 0)
+                @if (ViewBag.RecentTransactions != null && ((List<RecentTransactionData>)ViewBag.RecentTransactions).Any())
                 {
                     <ejs-grid id="recent-transactions"
                               dataSource="@ViewBag.RecentTransactions" gridLines="None">
