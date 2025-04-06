@@ -8,7 +8,6 @@
         menuItems.Add(new { text = "Trang chủ", url = "/", iconCss = "fa-solid fa-box" });
         menuItems.Add(new { text = "Danh mục", url = "/Category", iconCss = "fa-solid fa-folder-closed" });
         menuItems.Add(new { text = "Giao dịch", url = "/Transaction", iconCss = "fa-solid fa-arrow-right-arrow-left" });
-        menuItems.Add(new { text = "Báo cáo", url = "/Report", iconCss = "fa-solid fa-chart-simple" });
         menuItems.Add(new { text = "Quỹ", url = "/Fund", iconCss = "fa-solid fa-piggy-bank" });
     }
     else if (User.IsInRole("Admin"))
@@ -18,7 +17,7 @@
         menuItems.Add(new { text = "Giao dịch", url = "/Transaction", iconCss = "fa-solid fa-arrow-right-arrow-left" });
         menuItems.Add(new { text = "Người dùng", url = "/Admin/ApplicationUser", iconCss = "fa-solid fa-users" });
         menuItems.Add(new { text = "Quỹ", url = "/Fund", iconCss = "fa-solid fa-piggy-bank" });
-        menuItems.Add(new { text = "Báo cáo", url = "/Report", iconCss = "fa-solid fa-chart-simple" });
+        
         
     }
 

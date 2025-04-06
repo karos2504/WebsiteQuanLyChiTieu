@@ -10,7 +10,7 @@
     <a asp-action="Create" class="btn btn-primary">Tạo giao dịch mới</a>
 </p>
 
-<table class="table">
+<table class="table table-custom">
     <thead>
         <tr>
             <th>@Html.DisplayNameFor(model => model.Type)</th>
@@ -35,10 +35,11 @@
                 <td>@Html.DisplayFor(modelItem => item.Status)</td>
                 <td>@Html.DisplayFor(modelItem => item.CreatedAt)</td>
                 <td>
-                    <a asp-action="Details" asp-route-id="@item.TransactionID">Chi tiết</a> |
-                    <a asp-action="Edit" asp-route-id="@item.TransactionID">Sửa</a>
+                    <a asp-action="Details" asp-route-id="@item.TransactionID" class="btn btn-primary btn-sm">Chi tiết</a>
+                    <a asp-action="Edit" asp-route-id="@item.TransactionID" class="btn btn-secondary btn-sm">Sửa</a>
                 </td>
             </tr>
         }
     </tbody>
 </table>
+

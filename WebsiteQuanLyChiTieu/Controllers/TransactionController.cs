@@ -31,7 +31,21 @@ namespace WebsiteQuanLyChiTieu.Controllers
         // GET: Transaction
         public async Task<IActionResult> Index()
         {
-            var transactions = await _transactionRepository.GetAllAsync();
+            var currentUser = await _userManager.GetUserAsync(User);
+            var isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin");
+
+            IEnumerable<Transaction> transactions;
+
+            if (isAdmin)
+            {
+                transactions = await _transactionRepository.GetAllAsync();
+            }
+            else
+            {
+                transactions = await _transactionRepository.GetAllAsync();
+                transactions = transactions.Where(t => t.CreatedById == currentUser.Id);
+            }
+
             return View(transactions);
         }
 
@@ -68,7 +82,6 @@ namespace WebsiteQuanLyChiTieu.Controllers
         }
 
 
-        // POST: Transaction/Create
         // POST: Transaction/Create
         [HttpPost]
         [ValidateAntiForgeryToken]

@@ -408,3 +408,16 @@ body {
         .form-container .form-group textarea::placeholder {
             color: #bbb; /* Làm mờ chữ placeholder */
         }
+/* site.css */
+.table-custom {
+    color: #ffffff; /* White text color for better contrast */
+}
+
+    .table-custom a {
+        color: #00bfff; /* Light blue color for links */
+    }
+
+        .table-custom a:hover {
+            color: #1e90ff; /* Darker blue color for links on hover */
+        }
+

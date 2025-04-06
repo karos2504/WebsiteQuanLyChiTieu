@@ -8,10 +8,10 @@
 @if (User.IsInRole("Admin"))
 {
     <p>
-        <a asp-action="Create">Tạo quỹ mới</a>
+        <a asp-action="Create" class="btn btn-primary">Tạo quỹ mới</a>
     </p>
 }
-<table class="table">
+<table class="table table-custom">
     <thead>
         <tr>
             <th>@Html.DisplayNameFor(model => model.FundName)</th>
@@ -30,10 +30,10 @@
                 @if (User.IsInRole("Admin"))
                 {
                     <td>
-                        <a asp-action="Details" asp-route-id="@item.FundID">Chi tiết</a> |
-                    <a asp-action="Edit" asp-route-id="@item.FundID">Sửa</a> |
-                    <a asp-action="Delete" asp-route-id="@item.FundID">Xóa</a>
-                </td>
+                        <a asp-action="Details" asp-route-id="@item.FundID" class="btn btn-primary btn-sm">Chi tiết</a>
+                        <a asp-action="Edit" asp-route-id="@item.FundID" class="btn btn-secondary btn-sm">Sửa</a>
+                        <a asp-action="Delete" asp-route-id="@item.FundID" class="btn btn-danger btn-sm">Xóa</a>
+                    </td>
                 }
             </tr>
         }

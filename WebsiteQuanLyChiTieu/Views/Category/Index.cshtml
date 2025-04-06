@@ -7,10 +7,10 @@
 <h1>Danh sách danh mục</h1>
 
 <p>
-    <a asp-action="Create">Tạo danh mục mới</a>
+    <a asp-action="Create" class="btn btn-primary">Tạo danh mục mới</a>
 </p>
 
-<table class="table">
+<table class="table table-custom">
     <thead>
         <tr>
             <th>@Html.DisplayNameFor(model => model.CategoryName)</th>
@@ -25,9 +25,9 @@
                 <td>@Html.DisplayFor(modelItem => item.CategoryName)</td>
                 <td>@Html.DisplayFor(modelItem => item.Description)</td>
                 <td>
-                    <a asp-action="Details" asp-route-id="@item.CategoryID">Chi tiết</a> |
-                    <a asp-action="Edit" asp-route-id="@item.CategoryID">Sửa</a> |
-                    <a asp-action="Delete" asp-route-id="@item.CategoryID">Xóa</a>
+                    <a asp-action="Details" asp-route-id="@item.CategoryID" class="btn btn-primary btn-sm">Chi tiết</a> |
+                    <a asp-action="Edit" asp-route-id="@item.CategoryID" class="btn btn-secondary btn-sm">Sửa</a> |
+                    <a asp-action="Delete" asp-route-id="@item.CategoryID" class="btn btn-danger btn-sm">Xóa</a>
                 </td>
             </tr>
         }
