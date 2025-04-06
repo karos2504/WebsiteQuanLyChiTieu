@@ -12,8 +12,8 @@ using WebsiteQuanLyChiTieu.Data;
 namespace WebsiteQuanLyChiTieu.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250405162954_Initial")]
-    partial class Initial
+    [Migration("20250406100613_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

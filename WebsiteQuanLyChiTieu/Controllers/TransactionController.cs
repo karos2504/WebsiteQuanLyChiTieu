@@ -63,11 +63,12 @@ namespace WebsiteQuanLyChiTieu.Controllers
             return View(new Transaction
             {
                 CreatedById = _userManager.GetUserId(User),
-                Status = "Pending",
                 CreatedAt = DateTime.UtcNow
             });
         }
 
+
+        // POST: Transaction/Create
         // POST: Transaction/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -75,8 +76,17 @@ namespace WebsiteQuanLyChiTieu.Controllers
         public async Task<IActionResult> Create([Bind("CategoryID,FundID,Type,Amount,Description,CreatedById,Status,CreatedAt")] Transaction transaction)
         {
             transaction.CreatedById = _userManager.GetUserId(User);
-            transaction.Status = "Pending";
             transaction.CreatedAt = DateTime.UtcNow;
+
+            // Automatically approve if the transaction type is "Income"
+            if (transaction.Type == "Income")
+            {
+                transaction.Status = "Approved";
+            }
+            else
+            {
+                transaction.Status = "Pending";
+            }
 
             if (ModelState.IsValid)
             {
@@ -91,6 +101,25 @@ namespace WebsiteQuanLyChiTieu.Controllers
                 else
                 {
                     await _transactionRepository.AddAsync(transaction);
+
+                    // Update the fund amount if the transaction is approved
+                    if (transaction.Status == "Approved")
+                    {
+                        var fund = await _fundRepository.GetByIdAsync(transaction.FundID);
+                        if (fund != null)
+                        {
+                            if (transaction.Type == "Income")
+                            {
+                                fund.Amount += transaction.Amount;
+                            }
+                            else if (transaction.Type == "Expense")
+                            {
+                                fund.Amount -= transaction.Amount;
+                            }
+                            await _fundRepository.UpdateAsync(fund);
+                        }
+                    }
+
                     return RedirectToAction(nameof(Index));
                 }
             }
@@ -99,6 +128,8 @@ namespace WebsiteQuanLyChiTieu.Controllers
             ViewData["FundID"] = new SelectList(await _fundRepository.GetAllAsync(), "FundID", "FundName", transaction.FundID);
             return View(transaction);
         }
+
+
 
         // GET: Transaction/Edit/5
         [Authorize]

@@ -19,7 +19,7 @@
 
 <div class="form-group">
     <label for="Roles">Roles</label>
-    @* <input type="text" id="Roles" class="form-control" value="@string.Join(", ", Model.Roles)" readonly /> *@
+    <input type="text" id="Roles" class="form-control" value="@string.Join(", ", Model.Role)" readonly /> 
 </div>
 
 <a href="@Url.Action("Edit", "ApplicationUser", new { id = Model.Id, area = "Admin" })" class="btn btn-warning">Edit</a>

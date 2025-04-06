@@ -5,11 +5,12 @@
 }
 
 <h1>Danh sách quỹ</h1>
-
-<p>
-    <a asp-action="Create">Tạo quỹ mới</a>
-</p>
-
+@if (User.IsInRole("Admin"))
+{
+    <p>
+        <a asp-action="Create">Tạo quỹ mới</a>
+    </p>
+}
 <table class="table">
     <thead>
         <tr>
@@ -26,11 +27,14 @@
                 <td>@Html.DisplayFor(modelItem => item.FundName)</td>
                 <td>@Html.DisplayFor(modelItem => item.Amount)</td>
                 <td>@Html.DisplayFor(modelItem => item.Description)</td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@item.FundID">Chi tiết</a> |
+                @if (User.IsInRole("Admin"))
+                {
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.FundID">Chi tiết</a> |
                     <a asp-action="Edit" asp-route-id="@item.FundID">Sửa</a> |
                     <a asp-action="Delete" asp-route-id="@item.FundID">Xóa</a>
                 </td>
+                }
             </tr>
         }
     </tbody>
