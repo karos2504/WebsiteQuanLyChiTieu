@@ -1,33 +1,30 @@
 ﻿@model WebsiteQuanLyChiTieu.Models.Category
-
 @{
-    ViewData["Title"] = "Xóa danh mục";
+    ViewData["Title"] = "Xóa Danh Mục";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Xóa danh mục</h1>
+<h2>Xóa Danh Mục</h2>
 
 <h3>Bạn có chắc chắn muốn xóa danh mục này?</h3>
 <div>
-    <h4>@Html.DisplayFor(model => model.CategoryName)</h4>
+    <h4>@Model.CategoryName</h4>
     <hr />
     <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.CategoryName)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.CategoryName)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
+        <dt class="col-sm-2">Tên Danh Mục</dt>
+        <dd class="col-sm-10">@Model.CategoryName</dd>
+        <dt class="col-sm-2">Mô Tả</dt>
+        <dd class="col-sm-10">@Model.Description</dd>
+        @if (User.IsInRole("Admin"))
+        {
+            <dt class="col-sm-2">Người Sở Hữu</dt>
+            <dd class="col-sm-10">@(Model.User != null ? Model.User.FullName : "Không có")</dd>
+        }
     </dl>
 
-    <form asp-action="Delete">
+    <form asp-action="Delete" method="post">
         <input type="hidden" asp-for="CategoryID" />
-        <input type="submit" value="Xóa" class="btn btn-danger" /> |
-        <a asp-action="Index" class="btn btn-secondary btn-sm">Quay lại danh sách</a>
+        <button type="submit" class="btn btn-danger">Xóa</button>
+        <a asp-action="Index" class="btn btn-secondary">Hủy</a>
     </form>
 </div>

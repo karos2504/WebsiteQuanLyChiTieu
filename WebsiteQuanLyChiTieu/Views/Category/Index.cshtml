@@ -1,33 +1,41 @@
 ﻿@model IEnumerable<WebsiteQuanLyChiTieu.Models.Category>
-
 @{
-    ViewData["Title"] = "Danh sách danh mục";
+    ViewData["Title"] = "Danh Sách Danh Mục";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Danh sách danh mục</h1>
+<h2>Danh Sách Danh Mục</h2>
 
 <p>
-    <a asp-action="Create" class="btn btn-primary">Tạo danh mục mới</a>
+    <a asp-action="Create" class="btn btn-primary">Tạo Danh Mục Mới</a>
 </p>
 
 <table class="table table-custom">
     <thead>
         <tr>
-            <th>@Html.DisplayNameFor(model => model.CategoryName)</th>
-            <th>@Html.DisplayNameFor(model => model.Description)</th>
-            <th></th>
+            <th>Tên Danh Mục</th>
+            <th>Mô Tả</th>
+            @if (User.IsInRole("Admin"))
+            {
+                <th>Người Sở Hữu</th>
+            }
+            <th>Thao Tác</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var category in Model)
         {
             <tr>
-                <td>@Html.DisplayFor(modelItem => item.CategoryName)</td>
-                <td>@Html.DisplayFor(modelItem => item.Description)</td>
+                <td>@category.CategoryName</td>
+                <td>@category.Description</td>
+                @if (User.IsInRole("Admin"))
+                {
+                    <td>@(category.User != null ? category.User.FullName : "Không có")</td>
+                }
                 <td>
-                    <a asp-action="Details" asp-route-id="@item.CategoryID" class="btn btn-primary btn-sm">Chi tiết</a> |
-                    <a asp-action="Edit" asp-route-id="@item.CategoryID" class="btn btn-secondary btn-sm">Sửa</a> |
-                    <a asp-action="Delete" asp-route-id="@item.CategoryID" class="btn btn-danger btn-sm">Xóa</a>
+                    <a asp-action="Details" asp-route-id="@category.CategoryID">Chi tiết</a> |
+                    <a asp-action="Edit" asp-route-id="@category.CategoryID">Sửa</a> |
+                    <a asp-action="Delete" asp-route-id="@category.CategoryID">Xóa</a>
                 </td>
             </tr>
         }

@@ -33,49 +33,45 @@ namespace WebsiteQuanLyChiTieu.Controllers
 
         public async Task<IActionResult> Index(string selectedUserId = null)
         {
-            if (User.Identity.IsAuthenticated)
+            if (!User.Identity.IsAuthenticated)
             {
-                var currentUserId = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
-                var currentUser = await _userManager.FindByIdAsync(currentUserId);
+                SetEmptyData();
+                return View();
+            }
 
-                // Nếu là Admin
-                if (await _userManager.IsInRoleAsync(currentUser, "Admin"))
+            var currentUserId = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
+            var currentUser = await _userManager.FindByIdAsync(currentUserId);
+            var isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin");
+
+            if (isAdmin)
+            {
+                // Admin: Hiển thị dropdown chọn User
+                var allUsers = await _userManager.Users.ToListAsync();
+                ViewBag.AllUsers = allUsers;
+
+                if (!string.IsNullOrEmpty(selectedUserId))
                 {
-                    // Lấy danh sách tất cả người dùng để hiển thị trong dropdown
-                    var allUsers = await _userManager.Users.ToListAsync();
-                    ViewBag.AllUsers = allUsers;
-
-                    // Nếu Admin chọn một User cụ thể
-                    if (!string.IsNullOrEmpty(selectedUserId))
+                    var selectedUser = await _userManager.FindByIdAsync(selectedUserId);
+                    if (selectedUser != null)
                     {
-                        var selectedUser = await _userManager.FindByIdAsync(selectedUserId);
-                        if (selectedUser != null)
-                        {
-                            ViewBag.SelectedUserFullName = selectedUser.FullName;
-                            await LoadUserFundData(selectedUserId);
-                        }
-                        else
-                        {
-                            SetEmptyData();
-                        }
+                        ViewBag.SelectedUserFullName = selectedUser.FullName;
+                        await LoadUserFundData(selectedUserId);
                     }
                     else
                     {
-                        // Mặc định không hiển thị dữ liệu nếu Admin chưa chọn User
                         SetEmptyData();
                     }
                 }
                 else
                 {
-                    // Nếu là người dùng thường, hiển thị dữ liệu từ quỹ được cấp
-                    ViewBag.SelectedUserFullName = currentUser.FullName;
-                    await LoadUserFundData(currentUserId);
+                    SetEmptyData();
                 }
             }
             else
             {
-                // Khi chưa đăng nhập
-                SetEmptyData();
+                // User thường: Chỉ hiển thị dữ liệu cá nhân
+                ViewBag.SelectedUserFullName = currentUser.FullName;
+                await LoadUserFundData(currentUserId);
             }
 
             return View();
@@ -84,21 +80,17 @@ namespace WebsiteQuanLyChiTieu.Controllers
         // Phương thức tải dữ liệu từ quỹ của User
         private async Task LoadUserFundData(string userId)
         {
-            // Lấy quỹ được cấp cho User
             var funds = await _fundRepository.GetAllAsync();
             var userFund = funds.FirstOrDefault(f => f.UserID == userId);
 
             if (userFund != null)
             {
-                // Lấy giao dịch từ quỹ của User
                 var transactions = await _transactionRepository.GetAllAsync();
                 var userTransactions = transactions.Where(t => t.FundID == userFund.FundID).ToList();
-
                 await LoadDashboardData(userTransactions);
             }
             else
             {
-                // Nếu User không có quỹ, hiển thị dữ liệu rỗng
                 SetEmptyData();
             }
         }
@@ -106,7 +98,6 @@ namespace WebsiteQuanLyChiTieu.Controllers
         // Phương thức tính toán và gán dữ liệu cho ViewBag
         private async Task LoadDashboardData(List<Transaction> transactions)
         {
-            // 1. Tổng Thu Nhập, Tổng Chi Tiêu, Số Dư
             var totalIncome = transactions.Where(t => t.Type == "Income" && t.Status == "Approved").Sum(t => t.Amount);
             var totalExpense = transactions.Where(t => t.Type == "Expense" && t.Status == "Approved").Sum(t => t.Amount);
             var balance = totalIncome - totalExpense;
@@ -116,7 +107,6 @@ namespace WebsiteQuanLyChiTieu.Controllers
             ViewBag.TotalExpend = totalExpense.ToString("C0");
             ViewBag.Balance = balance.ToString("C0");
 
-            // 2. Dữ liệu cho biểu đồ bánh (Chi Tiêu Theo Danh Mục)
             var categories = await _categoryRepository.GetAllAsync();
             var expenseByCategory = transactions
                 .Where(t => t.Type == "Expense" && t.Status == "Approved")
@@ -135,7 +125,6 @@ namespace WebsiteQuanLyChiTieu.Controllers
             }).ToList();
             ViewBag.DoughnutChartData = doughnutChartData;
 
-            // 3. Dữ liệu cho biểu đồ đường (Thu Nhập vs Chi Tiêu theo ngày)
             var splineChartData = transactions
                 .Where(t => t.Status == "Approved")
                 .GroupBy(t => t.CreatedAt.Date)
@@ -147,7 +136,6 @@ namespace WebsiteQuanLyChiTieu.Controllers
                 }).OrderBy(x => DateTime.Parse(x.Day)).ToList();
             ViewBag.SplineChartData = splineChartData;
 
-            // 4. Giao dịch gần đây (5 giao dịch mới nhất)
             var recentTransactions = transactions
                 .OrderByDescending(t => t.CreatedAt)
                 .Take(5)

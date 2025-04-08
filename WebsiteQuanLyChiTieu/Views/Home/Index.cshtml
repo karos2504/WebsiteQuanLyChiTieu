@@ -1,11 +1,6 @@
-﻿@*
-    Để biết thêm thông tin về cách bật MVC cho các dự án trống, truy cập https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-
-@using WebsiteQuanLyChiTieu.Models
+﻿@using WebsiteQuanLyChiTieu.Models
 @using Microsoft.AspNetCore.Identity
 @using WebsiteQuanLyChiTieu.Areas.Admin.Models
-@inject UserManager<ApplicationUser> UserManager
 
 @{
     ViewData["Title"] = "Home Page";
@@ -33,7 +28,13 @@
     </div>
 }
 
-@* Widget Tóm tắt *@
+<!-- Hiển thị tên người dùng hiện tại -->
+@if (ViewBag.SelectedUserFullName != null)
+{
+    <h2>Dữ liệu của: @ViewBag.SelectedUserFullName</h2>
+}
+
+<!-- Widget Tóm tắt -->
 <div class="row mb-4">
     <div class="col-md-4">
         <div class="d-flex flex-row widget summary income">
@@ -93,7 +94,7 @@
     </div>
 </div>
 
-@* Biểu đồ Bánh và Biểu đồ Đường *@
+<!-- Biểu đồ Bánh và Biểu đồ Đường -->
 <div class="row mb-4">
     <div class="col-md-4">
         <div class="widget chart">
@@ -164,7 +165,7 @@
     </div>
 </div>
 
-@* Giao dịch Gần Đây và Thêm Nữa *@
+<!-- Giao dịch Gần Đây và Thêm Nữa -->
 <div class="row">
     <div class="col-md-6">
         <div class="widget">
